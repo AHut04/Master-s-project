@@ -6,22 +6,22 @@ from itertools import product
 
 
 #Test parameter for integral prediction
-p_tensor = torch.tensor([[2,1]],dtype=torch.float32)
+p_tensor = torch.tensor([[3,1]],dtype=torch.float32)
 
 #Setting parameters for training
-n_dim=1
+n_dim=2
 n_params=p_tensor.size(dim=1)
 n_training_points=1000
-n_iterations=100
+n_iterations=5000
 
 #Calculating actual integral value for test parameter
 def integral_value(params, x):
-    return torch.tensor([0.5*params[0]*x[0]**2+params[1]*x[0]])
+    return 0.5*(params[0]*x[1]*x[0]**2+params[1]*x[0]*x[1]**2)
 
 #Obtaining training data
 
 def integrand(p_i,x_i): #Returns actual integral value
-    return p_i[0]*x_i[0]+p_i[1]
+    return p_i[0]*x_i[0]+p_i[1]*x_i[1]
 
 def numerical_calc(params, x): #Generates tensor of actual integral values
     return torch.stack([
@@ -167,7 +167,7 @@ losses = run_nn_training(model,learning_rate=0.001)
 integral_prediction = post_processing(model, p_tensor)
 
 print("Predicted integral:", integral_prediction)
-print("Exact integral:", integral_value(p_tensor[0], torch.full((1,n_dim),1)).item())
+print("Exact integral:", integral_value(p_tensor[0], torch.full((1,n_dim),1)[0]).item())
 
 #Plotting loss just to see
 plt.plot(losses)
@@ -177,7 +177,6 @@ plt.yscale("log")
 plt.show()
 
 ''' To do:
-- Test 2D integral prediction
 - add better checking/replications of training
 - change way points are generated (Xavier initialisation, 1D laticce)
 - add pysecdec via wsl2 ubuntu
